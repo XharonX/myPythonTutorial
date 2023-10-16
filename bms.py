@@ -7,7 +7,13 @@ class PowerBank(Battery):
     def __init__(self, mAh, v=3.7, percent=100):
         super().__init__(mAh, v, percent)
 
+    class Meta:
+        modal = Battery
 
+
+class Phone(Battery):
+    def __init__(self, mAh=5000, v=3.7, percent=100):
+        super().__init__(mAh, v, percent)
 
 class Device:
     def __init__(self, mAh, volt=3.7):
@@ -86,8 +92,8 @@ class Battery:
     def deta_capacity(self, p1, p2):
 
         '''
-        :param p1: percentage for current
-        :param p2: percentage for second point
+        :param p1: bt_percent for current
+        :param p2: bt_percent for second point
         :return: Capacity
         '''
 
@@ -127,8 +133,8 @@ def hr_min(hrs):
 
 
 if __name__ == '__main__':
-    kanote = PowerBank(40800, 12, percent=90)
+    kanote = PowerBank(39900, 3.7, percent=33)
     print(kanote.Wh)
-    print(kanote.remaining)
-    kanote.charging(20)
-    print(kanote.remaining)
+    print(kanote.get_capacity())
+    kanote.charging(65, percent_point=93)
+    print(kanote.get_capacity())
