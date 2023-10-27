@@ -15,6 +15,7 @@ class Eyes:
         self.eye_width = 150
         self.eye_height = 150
         self.pupil_width = 50
+        self.pupil_r = 25
         self.spacing = 0
         self.__close = False
         self.__open = True
@@ -30,8 +31,8 @@ class Eyes:
         self.r_pupil_line = self.draw_eye(self.right_coodinate, self.eye_width, geo='line', bg='black', radius=25, depth=3, state='hidden')
 
         # For emotion
-        self.l_eye_arc = self.draw_eye(self.left_coodinate, self.eye_width, self.eye_height, geo='arc', bg='orange', start=180, extent=180, state='normal', )
-        self.r_eye_arc = self.draw_eye(self.right_coodinate, self.eye_width, self.eye_height, geo='arc', bg='orange', start=0, extent=180, state='normal')
+        self.l_eye_arc = self.draw_eye(self.left_coodinate, self.eye_width, self.eye_height, geo='arc', bg='orange', start=180, extent=180, state='hidden', )
+        self.r_eye_arc = self.draw_eye(self.right_coodinate, self.eye_width, self.eye_height, geo='arc', bg='orange', start=0, extent=180, state='hidden')
 
     def close(self):
         self.__close = True
@@ -165,6 +166,23 @@ class Eyes:
             # blink
             # first set default position
             # then move right slowly
+
+    def move_eye_by_mouse(self, event):
+        x, y = event.x, event.y
+
+        dx = x - self.left_coodinate[0]
+        dy = y - self.left_coodinate[1]
+
+        distance = (dx ** 2 / self.pupil_r ** 2) + (dy ** 2 / self.pupil_r ** 2)
+        if distance > 1:
+            angle = math.atan2(dy, dx)
+            l_new_x = self.left_coodinate[0] + self.pupil_r * math.cos(angle)
+            l_new_y = self.left_coodinate[1] + self.pupil_r * math.cos(angle)
+        else:
+            l_new_x=x
+            l_new_y=y
+        self.canvas.coords(self.l_pupil, l_new_x - self.pupil_r, l_new_y - self.pupil_r, l_new_x + self.pupil_r, l_new_y + self.pupil_r)
+
 class Nose:
     def __init__(self, canvas):
         self.canvas = canvas
@@ -215,11 +233,14 @@ class Face(Tk):
         self.touch1.pack()
         self.cursor_label = Label(self, text="X: 0, Y: 0")
         self.cursor_label.pack()
-        self.canvas.bind('<Motion>', self.update_cursor_coordinates)
+        # self.canvas.bind('<Motion>', self.update_cursor_coordinates)
 
     def update_cursor_coordinates(self, event):
         x, y = event.x, event.y
         self.cursor_label.config(text=f"(X: {x}, Y: {y})")
+
+    def look_fly(self):
+        self.canvas.bind('<Motion>', self.eyes.move_eye_by_mouse)
 
     def anger_face(self):
         pass
@@ -241,6 +262,7 @@ class Face(Tk):
 
 if __name__ == '__main__':
     robot_face = Face()
+    robot_face.look_fly()
     sleep(1)
     robot_face.mainloop()
 
